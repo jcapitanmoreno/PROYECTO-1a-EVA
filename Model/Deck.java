@@ -1,23 +1,33 @@
 package Model;
+import java.util.Collections;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class Deck {
 
     private Card[] cards = new Card[52];
+
     public void crearDeck() {
         int inicio = 0;
         String[] suits = {"Corazones", "Picas", "Treboles", "Diamantes"};
         for (String suit : suits) {
             for (int i = 1; i <= 13; i++) {
-               cards[inicio] = new Card(i, suit);
-              inicio++;
+                cards[inicio] = new Card(i, suit);
+                inicio++;
             }
         }
     }
 
+
+    public void randomizarDeck() {
+        List<Card> cardList = Arrays.asList(cards);
+        Collections.shuffle(cardList);
+        cards = cardList.toArray(cards);
+    }
     @Override
     public String toString() {
         return "Deck{" + "cards=" + Arrays.toString(cards) + '}';
     }
+
 }
