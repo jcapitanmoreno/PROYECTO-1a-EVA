@@ -11,7 +11,7 @@ public class Card {
         Suit = " ";
     }
 
-    Card(int value, String suit) {
+    Card(String suit, int value) {
         this.Value = value;
         this.Suit = suit;
 

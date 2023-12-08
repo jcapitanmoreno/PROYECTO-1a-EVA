@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class Game {
 
-    public static void initialice() {
+    public static void addPlayer() {
         int nJugadores = 0;
         String name = null;
 
@@ -36,6 +36,10 @@ public class Game {
 
 
             players.add(new Player(name, 0));
+
         }
+    }
+    public static void calculatePoints(){
+
     }
 }
