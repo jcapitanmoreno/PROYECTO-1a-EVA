@@ -3,10 +3,10 @@ package Model;
 import java.util.Objects;
 
 public class Card {
-    private int Value;
-    private String Suit;
+    public int Value;
+    public String Suit;
 
-    Card() {
+    public Card() {
         Value = 0;
         Suit = " ";
     }

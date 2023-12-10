@@ -36,7 +36,8 @@ public class Deck {
 
     public Card randomCard() {
         Card card = cards.remove(0);
-        System.out.println("tu carta es: " + card);
+        System.out.println("tu carta es: " + card.Value + " de " + card.Suit);
+
         return card;
 
     }
