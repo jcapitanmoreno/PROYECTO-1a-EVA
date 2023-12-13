@@ -17,64 +17,107 @@ public class Controller {
     Game game = new Game();
     View view = new View();
 
-    public void start() { //Aqui se muestra el menú del juego que vamos a seleccionar.
+
+    /**
+     * Inicia la ejecución del juego. Muestra el menú principal y permite al jugador seleccionar una opción.
+     * Las opciones incluyen jugar contra la inteligencia artificial, jugar con otros jugadores o salir del juego.
+     * Después de seleccionar una opción, la función ejecuta la acción correspondiente y muestra mensajes de espera.
+     * El bucle continuará hasta que el usuario elija salir del juego.
+     */
+    public void start() { //Aquí se muestra el menú del juego que vamos a seleccionar.
         int option = 0;
-        view.menuPrincipal();
 
 
-        option = utils.scOptions(1, 3);
+        do {
+            view.menuPrincipal();
+            option = utils.scOptions(1, 3);
 
+            switch (option) {
+                case 1:
+                    playWhithIA();
+                    try {
+                        Thread.sleep(2000);
+                        System.out.println("");
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
 
-        switch (option) {
-            case 1:
-                playWhithIA();
+                case 2:
+                    playWithPlayers();
+                    try {
+                        Thread.sleep(2000);
+                        System.out.println("");
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
 
-                break;
-
-            case 2:
-                play();
-
-                break;
-
-            case 3:
-                System.out.println("bye bye");
-                break;
-        }
+                case 3:
+                    System.out.println("Gracias por jugar. ¡¡vuelve pronto!!");
+                    break;
+            }
+        } while (option != 3);
 
     }
 
+    /**
+     * Inicia una partida entre un jugador humano y la inteligencia artificial (IA).
+     * El menu indica si quieres seguir queriendo carta o se planta (la iA toma sus propias decisiones)
+     */
     public void playWhithIA() {
         boolean repeat;
         Scanner teclado = new Scanner(System.in);
         int option = 0;
         Deck deck = new Deck();
         Player humanPlayer = game.addPlayerAndIA(); //jugador humano
-        Player aiPlayer = new Player("IA", 0, true); // Crear jugador IA
-
+        Player aiPlayer = new Player("IA", 0); // Crear jugador IA
         deck.crearDeck();
+
         for (int i = 0; i < 2; i++) {
-            Card card = deck.randomCard();
-            game.calculatePoints(humanPlayer, card);
-            Card card2 = deck.randomCard();
-            game.calculatePoints(aiPlayer, card2);
+            try {
+                Thread.sleep(2000);
+                Card card = deck.randomCard();
+                view.cardInterface(card);
+                game.calculatePoints(humanPlayer, card);
+            } catch (InterruptedException e) {
+            }
+
+            try {
+                Thread.sleep(2000);
+                Card card2 = deck.randomCard();
+                view.cardInterface(card2);
+                game.calculatePoints(aiPlayer, card2);
+            } catch (InterruptedException e) {
+            }
+
+
         }
         // Juega el jugador humano primero
         do {
-            System.out.println("1 seguir, 2 salir");
+            System.out.println("-----------------------------");
+            System.out.println("1 Seguir, 2 Plantarse");
+            System.out.println("-----------------------------");
             option = utils.scOptions(1, 2);
 
             if (option == 1) {
                 System.out.println("-----------------------------");
                 System.out.println("Vas a sacar carta");
+                System.out.println("-----------------------------");
                 Card card = deck.randomCard();
+                view.cardInterface(card);
                 game.calculatePoints(humanPlayer, card);
 
                 if (humanPlayer.getScore() > 21) {
+                    System.out.println("-----------------------------");
                     System.out.println("Has perdido");
+                    System.out.println("-----------------------------");
 
                 }
             } else {
-                System.out.println("te has plantado");
+                System.out.println("-----------------------------");
+                System.out.println("Te has plantado");
+                System.out.println("-----------------------------");
             }
 
         } while (option == 1 && humanPlayer.getScore() <= 21);
@@ -83,19 +126,25 @@ public class Controller {
 
         do {
             repeat = decideToPlay(aiPlayer);
-            //System.out.println(repeat);
+
 
             if (repeat) {
                 System.out.println("-----------------------------");
                 System.out.println("La IA va a sacar carta");
+                System.out.println("-----------------------------");
                 Card card = deck.randomCard();
+                view.cardInterface(card);
                 game.calculatePoints(aiPlayer, card);
 
                 if (aiPlayer.getScore() > 21) {
+                    System.out.println("-----------------------------");
                     System.out.println("La IA ha perdido");
+                    System.out.println("-----------------------------");
                 }
             } else {
+                System.out.println("-----------------------------");
                 System.out.println(aiPlayer.getName() + " se ha plantado");
+                System.out.println("-----------------------------");
             }
         } while (repeat && aiPlayer.getScore() <= 21);
 
@@ -115,78 +164,113 @@ public class Controller {
         }
     }
 
+    /**
+     * Método principal para ejecutar una partida del juego. Inicializa el mazo, agrega jugadores,
+     * reparte cartas iniciales, permite a cada jugador tomar decisiones turno por turno
+     * (pedir carta o plantarse), muestra los resultados y determina al ganador o si hay un empate al final.
+     */
+    public void playWithPlayers() {
 
-    public void play() {
-        int option = 0;
+        int option;
         Deck deck = new Deck();
         ArrayList<Player> players = new ArrayList<>();
         ArrayList<Player> outPlayers = new ArrayList<>();
+
+        // Agregar jugadores (hasta 4 jugadores)
         players = game.addPlayer();
-        System.out.println(players);
+
         deck.crearDeck();
-        for (Player player : players) {
-            for (int i = 0; i < 2; i++) {
-                if (player.isIA()) {
-                    System.out.println("-----------------------------");
-                    System.out.println("La IA " + player.getName() + " va a sacar carta");
-                } else {
+
+        // Repartir cartas iniciales
+        try {
+            for (Player player : players) {
+                for (int i = 0; i < 2; i++) {
+
+
+                    Thread.sleep(2000);
+
                     System.out.println("-----------------------------");
                     System.out.println(player.getName() + " vas a sacar carta");
+                    Card card = deck.randomCard();
+                    view.cardInterface(card);
+                    game.calculatePoints(player, card);
+                    System.out.println("-----------------------------");
+                }
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        // Jugar turno por turno
+        for (Player player : players) {
+            do {
+                System.out.println("-----------------------------");
+                System.out.println(player.getName() + ", es tu turno:");
+                System.out.println("1. Pedir carta");
+                System.out.println("2. Plantarse");
+                System.out.println("-----------------------------");
+
+                option = utils.scOptions(1, 2);
+
+                switch (option) {
+                    case 1:
+                        System.out.println("-----------------------------");
+                        System.out.println(player.getName() + " vas a sacar carta");
+                        System.out.println("-----------------------------");
+                        Card card = deck.randomCard();
+                        view.cardInterface(card);
+                        game.calculatePoints(player, card);
+
+                        if (player.getScore() > 21) {
+                            System.out.println("-----------------------------");
+                            System.out.println(player.getName() + " ha perdido");
+                            System.out.println("-----------------------------");
+                            outPlayers.add(player);
+                        }
+                        break;
+
+                    case 2:
+                        System.out.println("-----------------------------");
+                        System.out.println(player.getName() + " se ha plantado");
+                        System.out.println("-----------------------------");
+                        break;
                 }
 
-                Card card = deck.randomCard();
-                game.calculatePoints(player, card);
-            }
+            } while (option == 1 && player.getScore() <= 21);
         }
-        // menu de opcion de coger carta o plantarse
-        do {
-            System.out.println(" 1 seguir, 2 salir ");
-            option = utils.scOptions(1, 2);
 
-            switch (option) {
-                case 1:
+        // Muestra resultados después de que todos los jugadores hayan jugado
+        for (Player player : players) {
+            System.out.println("-----------------------------");
+            System.out.println(player.getName() + ", tu puntuación es: " + player.getScore());
+            System.out.println("-----------------------------");
+        }
+        // Limpia la lista de jugadores que han perdido
+        players.removeAll(outPlayers);
 
-                    for (Player player : players) {
-                        if (player.isIA()) {
-                            if (!decideToPlay(player)) {
-                                System.out.println(player.getName() + " se ha plantado");
-                                outPlayers.add(player);
-                            } else {
-                                System.out.println("-----------------------------");
-                                System.out.println("la IA " + player.getName() + " va a sacar carta");
-                                Card card = deck.randomCard();
-                                game.calculatePoints(player, card);
-                                if (player.getScore() > 21) {
-                                    System.out.println(player.getName() + " ha perdido");
-                                    outPlayers.add(player);
-                                }
-                            }
-                        } else if (!player.isIA()) {
-                            System.out.println("-----------------------------");
-                            System.out.println(player.getName() + " vas a sacar carta");
-                            Card card = deck.randomCard();
-                            game.calculatePoints(player, card);
+        Player ganador = game.determineWinner(players);
 
-                            if (player.getScore() > 21) {
-                                System.out.println(player.getName() + " ha perdido");
-                                outPlayers.add(player);
-                            }
-                        }
-                    }
-                    players.removeAll(outPlayers);
-                    //System.out.println(players); comentario de comprobación
-                    //System.out.println(lostPlayers); comentario de comprobación
-                    break;
-
-                case 2:
-                    Player p = players.getFirst();
-                    System.out.println("tu puntuacion es: " + p.getScore());
-                    break;
-            }
-        } while (option != 2);
+        // Muestra el ganador o indica si hay un empate
+        if (ganador != null) {
+            System.out.println("-----------------------------");
+            System.out.println("El ganador es: " + ganador.getName() + " con " + ganador.getScore() + " puntos.");
+            System.out.println("-----------------------------");
+        } else {
+            System.out.println("-----------------------------");
+            System.out.println("¡Es un empate!");
+            System.out.println("-----------------------------");
+        }
     }
 
+    /**
+     * Función que sirve para decidir si la IA sigue jugando o se planta
+     *
+     * @param p recibe el objeto "Player" como "P"
+     * @return devuelve el score que queremos para que la IA deje de jugar o siga jugando
+     */
     public boolean decideToPlay(Player p) {
         return p.getScore() <= 16;
     }
+
 }
